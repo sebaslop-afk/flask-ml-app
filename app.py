@@ -1,6 +1,8 @@
-﻿from flask import Flask, render_template, request
-from utils import db_connect
+from flask import Flask, render_template, request
+
 import joblib
+from src.utils import db_connect
+
 
 # Conexión a la base de datos (si es necesario para otras operaciones)
 engine = db_connect()
