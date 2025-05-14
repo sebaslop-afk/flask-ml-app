@@ -3,14 +3,14 @@ from flask import Flask, render_template, request
 import joblib
 from src.utils import db_connect
 
-# Configurar ruta base explícita
+#link https://flask-ml-app-krk4.onrender.com
 
 app = Flask(__name__)
 
-# Conexión a la base de datos
+
 engine = db_connect()
 
-# Cargar el modelo de forma segura
+
 try:
     base_dir = os.path.dirname(__file__)
     model_path = os.path.join(base_dir, "src", "models", "modelo_seguro.pkl")
@@ -28,7 +28,7 @@ def predict():
     if not model:
         return "Modelo no cargado."
 
-    # Obtener los datos del formulario
+    
     age = int(request.form["age"])
     sex = request.form["sex"]
     bmi = float(request.form["bmi"])
@@ -36,7 +36,7 @@ def predict():
     smoker = request.form["smoker"]
     region = request.form["region"]
 
-    # Codificar variables categóricas
+    
     smoker_encoded = 1 if smoker == "yes" else 0
     region_dict = {"northeast": 0, "northwest": 1, "southeast": 2, "southwest": 3}
     region_encoded = region_dict.get(region.lower(), -1)
