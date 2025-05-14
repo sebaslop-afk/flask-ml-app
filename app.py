@@ -1,36 +1,34 @@
-from flask import Flask, render_template, request
 import os
+from flask import Flask, render_template, request
 import joblib
 from src.utils import db_connect
 
-# Crear la aplicación Flask
-app = Flask(__name__)
+# Configurar ruta base explícita
+template_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'templates')
+app = Flask(__name__, template_folder=template_dir)
 
-# Conexión a la base de datos (si la usas en otro lugar)
+# Conexión a la base de datos
 engine = db_connect()
 
-# Cargar modelo de predicción
-base_dir = os.path.dirname(__file__)
-model_path = os.path.join(base_dir, "src", "models", "modelo_seguro.pkl")
-
+# Cargar el modelo de forma segura
 try:
+    base_dir = os.path.dirname(__file__)
+    model_path = os.path.join(base_dir, "src", "models", "modelo_seguro.pkl")
     model = joblib.load(model_path)
 except FileNotFoundError:
     model = None
-    print(f"⚠️ Modelo no encontrado en: {model_path}")
+    print("⚠️ Modelo no encontrado. Asegúrate de que 'modelo_seguro.pkl' exista.")
 
-# Ruta principal
 @app.route("/")
 def home():
     return render_template("index.html")
 
-# Ruta para hacer la predicción
 @app.route("/predict", methods=["POST"])
 def predict():
-    if model is None:
-        return "Error: modelo no disponible", 500
+    if not model:
+        return "Modelo no cargado."
 
-    # Obtener datos del formulario
+    # Obtener los datos del formulario
     age = int(request.form["age"])
     sex = request.form["sex"]
     bmi = float(request.form["bmi"])
@@ -43,15 +41,10 @@ def predict():
     region_dict = {"northeast": 0, "northwest": 1, "southeast": 2, "southwest": 3}
     region_encoded = region_dict.get(region.lower(), -1)
 
-    # Preparar datos para la predicción
     input_data = [[age, bmi, children, smoker_encoded, region_encoded]]
 
-    # Hacer predicción
     prediction = model.predict(input_data)[0]
-
-    # Mostrar resultado
     return render_template("result.html", prediction=round(prediction, 2))
 
-# Ejecutar localmente (no se usa en Render)
 if __name__ == "__main__":
     app.run(debug=True)
