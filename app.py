@@ -3,16 +3,21 @@ import os
 import joblib
 from src.utils import db_connect
 
-
-# Conexión a la base de datos (si es necesario para otras operaciones)
-engine = db_connect()
-
-base_dir = os.path.dirname(__file__)
-model_path = os.path.join(base_dir, "src", "models", "modelo_seguro.pkl")
-model = joblib.load(model_path)
-
 # Crear la aplicación Flask
 app = Flask(__name__)
+
+# Conexión a la base de datos (si la usas en otro lugar)
+engine = db_connect()
+
+# Cargar modelo de predicción
+base_dir = os.path.dirname(__file__)
+model_path = os.path.join(base_dir, "src", "models", "modelo_seguro.pkl")
+
+try:
+    model = joblib.load(model_path)
+except FileNotFoundError:
+    model = None
+    print(f"⚠️ Modelo no encontrado en: {model_path}")
 
 # Ruta principal
 @app.route("/")
@@ -22,7 +27,10 @@ def home():
 # Ruta para hacer la predicción
 @app.route("/predict", methods=["POST"])
 def predict():
-    # Obtener los datos del formulario
+    if model is None:
+        return "Error: modelo no disponible", 500
+
+    # Obtener datos del formulario
     age = int(request.form["age"])
     sex = request.form["sex"]
     bmi = float(request.form["bmi"])
@@ -30,21 +38,20 @@ def predict():
     smoker = request.form["smoker"]
     region = request.form["region"]
 
-    # Codificar las variables categóricas
-    sex_encoded = 1 if sex == "male" else 0
+    # Codificar variables categóricas
     smoker_encoded = 1 if smoker == "yes" else 0
     region_dict = {"northeast": 0, "northwest": 1, "southeast": 2, "southwest": 3}
     region_encoded = region_dict.get(region.lower(), -1)
 
-    # Preparar los datos para la predicción
-    input_data = [[age, bmi, children, smoker_encoded, region_encoded]]  # Eliminar sex_encoded
+    # Preparar datos para la predicción
+    input_data = [[age, bmi, children, smoker_encoded, region_encoded]]
 
-    # Hacer la predicción
+    # Hacer predicción
     prediction = model.predict(input_data)[0]
 
-    # Retornar el resultado redondeado a 2 decimales
+    # Mostrar resultado
     return render_template("result.html", prediction=round(prediction, 2))
 
-# Ejecutar la aplicación Flask
+# Ejecutar localmente (no se usa en Render)
 if __name__ == "__main__":
     app.run(debug=True)
