@@ -4,8 +4,8 @@ import joblib
 from src.utils import db_connect
 
 # Configurar ruta base explícita
-template_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'templates')
-app = Flask(__name__, template_folder=template_dir)
+
+app = Flask(__name__)
 
 # Conexión a la base de datos
 engine = db_connect()
