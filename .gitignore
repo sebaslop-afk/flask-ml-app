@@ -1,3 +1,22 @@
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+.env
+# Entorno virtual
+venv/
+.venv/
+
+# Archivos de Python temporales
+__pycache__/
+*.pyc
+
+# Archivos de configuración o secretos
+.env
+.learn
+
+# Archivos ocultos de macOS
+.DS_Store
 __pycache__
 .env
 .learn
