@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-
+import os
 import joblib
 from src.utils import db_connect
 
@@ -7,8 +7,9 @@ from src.utils import db_connect
 # Conexión a la base de datos (si es necesario para otras operaciones)
 engine = db_connect()
 
-# Cargar el modelo entrenado
-model = joblib.load("models/modelo_seguro.pkl")
+base_dir = os.path.dirname(__file__)
+model_path = os.path.join(base_dir, "src", "models", "modelo_seguro.pkl")
+model = joblib.load(model_path)
 
 # Crear la aplicación Flask
 app = Flask(__name__)
