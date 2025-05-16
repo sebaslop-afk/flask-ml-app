@@ -3,7 +3,8 @@ import pandas as pd
 import joblib
 
 # Cargar modelo (ajusta el nombre si tu archivo tiene otro)
-modelo = joblib.load("models/modelo_entrenado.pkl")
+modelo = joblib.load("src/models/modelo_seguro.pkl")
+
 
 # Título
 st.title("🧠 Predicción de Costo de Seguro Médico")
