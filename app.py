@@ -29,7 +29,7 @@ if st.button("Predecir costo del seguro"):
             'fumador': [fumador_cod]
         })
 
-        # Reordenar columnas si el modelo lo necesita
+        
         entrada = entrada[modelo.feature_names_in_]
 
         # Predicción
