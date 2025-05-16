@@ -4,7 +4,7 @@ import joblib
 
 # Cargar el modelo entrenado
 modelo = joblib.load("src/models/modelo_seguro.pkl")
-
+# link https://flask-ml-app-1-543a.onrender.com
 st.title("🧠 Predicción de Costo de Seguro Médico")
 
 # Inputs del usuario
