@@ -2,14 +2,12 @@ import streamlit as st
 import pandas as pd
 import joblib
 
-# Cargar el modelo entrenado
-modelo = joblib.load("src/models/modelo_seguro.pkl")
+# Cargar modelo
+modelo = joblib.load("src/models/modelo_seguro.pkl")  # Ajusta si es necesario
 
-# Título
 st.title("🧠 Predicción de Costo de Seguro Médico")
-st.markdown("Completa los datos del asegurado para predecir el costo estimado del seguro.")
 
-# Inputs
+# Entradas del usuario
 edad = st.number_input("Edad", min_value=0, max_value=120, value=30)
 sexo = st.selectbox("Sexo", ["male", "female"])
 bmi = st.number_input("IMC (Índice de Masa Corporal)", min_value=10.0, max_value=50.0, value=25.0, step=0.1)
@@ -19,16 +17,16 @@ fumador = st.selectbox("¿Fumador?", ["yes", "no"])
 # Botón
 if st.button("Predecir costo del seguro"):
     try:
-        # Codificar variables categóricas
+        # Crear DataFrame con columnas esperadas por el modelo
         entrada = pd.DataFrame({
             'age': [edad],
             'bmi': [bmi],
             'children': [hijos],
-            'sex_male': [1 if sexo == 'male' else 0],
-            'smoker_yes': [1 if fumador == 'yes' else 0]
+            'sexo': [sexo],
+            'fumador': [fumador]
         })
 
-        # Asegurar el orden correcto de columnas
+        # Reordenar columnas si hace falta
         entrada = entrada[modelo.feature_names_in_]
 
         # Predicción
