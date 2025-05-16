@@ -1,50 +1,28 @@
-import os
-from flask import Flask, render_template, request
+import streamlit as st
+import pandas as pd
 import joblib
-from src.utils import db_connect
 
-#link https://flask-ml-app-krk4.onrender.com
+# Cargar modelo (ajusta el nombre si tu archivo tiene otro)
+modelo = joblib.load("models/modelo_entrenado.pkl")
 
-app = Flask(__name__)
+# Título
+st.title("🧠 Predicción de Costo de Seguro Médico")
 
+st.markdown("Completa los datos del asegurado para predecir el costo.")
 
-engine = db_connect()
+# Formulario de entrada
+edad = st.number_input("Edad", min_value=0, max_value=120, value=30)
+sexo = st.selectbox("Sexo", ["male", "female"])
+bmi = st.number_input("IMC (Índice de Masa Corporal)", min_value=10.0, max_value=50.0, value=25.0, step=0.1)
 
+# Cuando se presiona el botón
+if st.button("Predecir costo del seguro"):
+    entrada = pd.DataFrame({
+        'age': [edad],
+        'sex': [sexo],
+        'bmi': [bmi]
+    })
 
-try:
-    base_dir = os.path.dirname(__file__)
-    model_path = os.path.join(base_dir, "src", "models", "modelo_seguro.pkl")
-    model = joblib.load(model_path)
-except FileNotFoundError:
-    model = None
-    print("⚠️ Modelo no encontrado. Asegúrate de que 'modelo_seguro.pkl' exista.")
-
-@app.route("/")
-def home():
-    return render_template("index.html")
-
-@app.route("/predict", methods=["POST"])
-def predict():
-    if not model:
-        return "Modelo no cargado."
-
-    
-    age = int(request.form["age"])
-    sex = request.form["sex"]
-    bmi = float(request.form["bmi"])
-    children = int(request.form["children"])
-    smoker = request.form["smoker"]
-    region = request.form["region"]
-
-    
-    smoker_encoded = 1 if smoker == "yes" else 0
-    region_dict = {"northeast": 0, "northwest": 1, "southeast": 2, "southwest": 3}
-    region_encoded = region_dict.get(region.lower(), -1)
-
-    input_data = [[age, bmi, children, smoker_encoded, region_encoded]]
-
-    prediction = model.predict(input_data)[0]
-    return render_template("result.html", prediction=round(prediction, 2))
-
-if __name__ == "__main__":
-    app.run(debug=True)
+    # ⚠️ Asegúrate de que el modelo esté entrenado con las mismas columnas y codificaciones
+    prediccion = modelo.predict(entrada)
+    st.success(f"💰 Costo estimado del seguro: ${prediccion[0]:,.2f}")
